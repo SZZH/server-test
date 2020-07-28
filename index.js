@@ -7,9 +7,30 @@ app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-
 
 const header = {
   id: false,
-  name: '姓名',
-  age: '年龄',
-  sex: '性别'
+  name: {
+    title: '姓名',
+    inputOptions: {
+      type: 'Input',
+      required: true,
+      defaultValue: 'xxx'
+    }
+  },
+  age: {
+    title: '年龄',
+    inputOptions: {
+      type: 'Input',
+      required: true,
+      defaultValue: 'xxx'
+    }
+  },
+  sex: {
+    title: '性别',
+    inputOptions: {
+      type: 'Input',
+      required: true,
+      defaultValue: 'xxx'
+    }
+  }
 }
 
 let list = [
@@ -94,12 +115,17 @@ let list = [
 ]
 
 app.get('/getList', (req, res) => {
-  res.send(list)
+  let data = {
+    list,
+    header: header,
+    pagination: {}
+  }
+  res.send(data)
 })
 
-app.get('/getTableHeader', (req, res) => {
-  res.send(header)
-})
+// app.get('/getTableHeader', (req, res) => {
+//   res.send(header)
+// })
 
 app.post('/insertItem', (req, res) => {
   const body = req.body
