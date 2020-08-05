@@ -33,15 +33,17 @@ const header = {
   }
 }
 
-let list = [
-  {
+let list = []
+
+for(let i = 0; i < 100; i++) {
+  list.push({
     id: {
-      value: 1,
+      value: i,
       isShow: false,
       type: 'Input',
     },
     name: {
-      value: '曾好',
+      value: `曾好${i}`,
       isShow: true,
       type: 'Input',
     },
@@ -59,67 +61,23 @@ let list = [
       isShow: true,
       type: 'Input',
     },
-  },
-  {
-    id: {
-      value: 2,
-      isShow: false,
-      type: 'Input',
-    },
-    name: {
-      value: '曾好',
-      isShow: true,
-      type: 'Input',
-    },
-    age: {
-      value: 20,
-      isShow: true,
-      type: 'Input',
-    },
-    sex: {
-      value: 1,
-      enums: {
-        0: '女',
-        1: '男'
-      },
-      isShow: true,
-      type: 'Input',
-    },
-  },
-  {
-    id: {
-      value: 3,
-      isShow: false,
-      type: 'Input',
-    },
-    name: {
-      value: '曾好',
-      isShow: true,
-      type: 'Input',
-    },
-    age: {
-      value: 20,
-      isShow: true,
-      type: 'Input',
-    },
-    sex: {
-      value: 0,
-      enums: {
-        0: '女',
-        1: '男'
-      },
-      isShow: true,
-      type: 'Input',
-    },
-  },
-]
+  })
+} 
 
 app.get('/getList', (req, res) => {
   let data = {
     list,
     header: header,
-    pagination: {}
+    pagination: {
+      pageSize: 20,
+      total: list.length,
+      showQuickJumper: true,
+      showSizeChanger: true,
+    }
   }
+
+  res.setHeader('Access-Control-Allow-Origin', '*')
+
   res.send(data)
 })
 
@@ -135,13 +93,25 @@ app.post('/insertItem', (req, res) => {
 
 app.post('/removeItem', (req, res) => {
   const { input: id } = req.body
+  const firstLength = list.length
+  console.log(id)
   for (let i in list) {
-    if (list[i].id.value === id) {
+    if (list[i].id.value == id) {
       list.splice(i, 1)
     }
   }
+  const endLength = list.length
+  console.log(firstLength, endLength)
+  if(endLength === firstLength) {
+    res.send({
+      status: 'error'
+    })
+    return
+  }
 
-  res.send('success')
+  res.send({
+    status: 'success'
+  })
 })
 
 app.listen(3030, err => {
