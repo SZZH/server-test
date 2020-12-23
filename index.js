@@ -9,6 +9,7 @@ const header = {
   id: false,
   name: {
     title: '姓名',
+    sorter: true,
     inputOptions: {
       type: 'Input',
       required: false,
@@ -20,6 +21,8 @@ const header = {
   },
   age: {
     title: '年龄',
+    ilterMultiple: false,
+    sorter: true,
     inputOptions: {
       type: 'InputNumber',
       required: true,
@@ -51,15 +54,6 @@ const header = {
       isSearch: true,
     }
   },
-  date3: {
-    title: '时间是一个时间是',
-    inputOptions: {
-      type: 'DatePicker',
-      required: true,
-      defaultValue: '2001',
-      isSearch: true,
-    }
-  },
   date2: {
     title: '两个时间',
     inputOptions: {
@@ -68,59 +62,53 @@ const header = {
       defaultValue: ['2001', '2002'],
       isSearch: true,
     }
-  },
-  x18: {
-    title: 'x5'
-  },
-  x19: {
-    title: 'x5'
-  },
+  }
 }
 
 let list = []
 
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 10; i++) {
   list.push({
+    key: i,
     id: {
       value: i,
       isShow: false,
     },
     name: {
-      value: `曾好${i}xxxxxxxxxxxxxxxxxxxxxxxxxxxx`,
+      value: `test${i}`,
       isShow: true,
     },
     age: {
-      value: 20,
+      value: Math.round((Math.random() + 1) * 100),
       isShow: true,
     },
     sex: {
       value: 1,
       isShow: true,
     },
-    x1: {
-      value: i,
+    date: {
+      value: '2020-01-01',
       isShow: true,
     },
-    x2: {
-      value: i,
+    date2: {
+      value: ['2020-01-01', '2020-01-20'],
       isShow: true,
     },
-    x3: {
-      value: i,
-      isShow: true,
-    },
-    x4: {
-      value: i,
-      isShow: true,
-    },
-    x5: {
-      value: i,
-      isShow: true,
-    },
+    children: [
+      {
+        key: i + '' + i,
+        id: i,
+        name: `test${i}children`,
+        age: Math.round((Math.random() + 1) * 100),
+        sex: 1,
+        date: '2020-01-01',
+        date2: ['2020-01-01', '2020-01-20'],
+      }
+    ]
   })
 }
 
-app.get('/testApi', (req, res) => {
+app.get('/api/testApi', (req, res) => {
   const result = 'sv'
   res.setHeader('Access-Control-Allow-Origin', '*')
   setTimeout(() => {
@@ -128,8 +116,8 @@ app.get('/testApi', (req, res) => {
   }, 5000)
 })
 
-app.post('/getList', (req, res) => {
-  const { current, pageSize, input = {} } = req.body
+app.post('/api/getList', (req, res) => {
+  const { current, pageSize, input = {}, sorter } = req.body
   const start = (current - 1) * pageSize
   let dataList = list.slice(start, start + pageSize)
   const searchKeys = Object.keys(input)
@@ -139,8 +127,24 @@ app.post('/getList', (req, res) => {
         if (input[searchKeys[i]] != item[searchKeys[i]].value) return false
       }
       return true
+    }).sort((prev, next) => {
+      console.log(sorter,)
+      if(sorter.order === 'ascend') {
+        console.log('‘进来了')
+        return prev[sorter.field].value - next[sorter.field].value
+      }else if(sorter.order === 'descend'){
+        return next[sorter.field].value - prev[sorter.field].value
+      }
     })
   }
+  dataList.sort((prev, next) => {
+    if(sorter.order === 'ascend') {
+      console.log('‘进来了')
+      return prev[sorter.field].value - next[sorter.field].value
+    }else if(sorter.order === 'descend'){
+      return next[sorter.field].value - prev[sorter.field].value
+    }
+  })
   let data = {
     list: dataList,
     header: header,
@@ -157,7 +161,7 @@ app.post('/getList', (req, res) => {
   res.send(data)
 })
 
-app.post('/insertItem', (req, res) => {
+app.post('/api/insertItem', (req, res) => {
   const { input } = req.body
   list.unshift({
     id: {
@@ -190,7 +194,7 @@ app.post('/insertItem', (req, res) => {
       type: 'Input',
     },
     date2: {
-      value: input.date,
+      value: input.date2,
       isShow: true,
       type: 'Input',
     }
@@ -202,7 +206,7 @@ app.post('/insertItem', (req, res) => {
   })
 })
 
-app.post('/removeItem', (req, res) => {
+app.post('/api/removeItem', (req, res) => {
   const { input: id } = req.body
   const firstLength = list.length
   for (let i in list) {
@@ -223,7 +227,7 @@ app.post('/removeItem', (req, res) => {
   })
 })
 
-app.post('/updateItem', (req, res) => {
+app.post('/api/updateItem', (req, res) => {
   const { input } = req.body
   for (let i in list) {
     if (list[i].id.value == input.id) {
@@ -243,7 +247,7 @@ app.post('/updateItem', (req, res) => {
   })
 })
 
-app.listen(3030, err => {
+app.listen(3232, err => {
   if (err) return
-  console.log('server is running in 3030')
+  console.log('server is running in 3232')
 })
